@@ -1,8 +1,3 @@
-"""
-News Classifier API v0.6
-───────────────────────
-FastAPI-based micro-service for text-classification inference.
-"""
 
 import asyncio
 import logging
