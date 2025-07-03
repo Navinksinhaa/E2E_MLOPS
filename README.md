@@ -238,8 +238,8 @@ Prometheus collects and displays system and application metrics, enabling real-t
 
 ### Grafana
 Grafana dashboards provide a comprehensive overview of the deployed model's performance and system health.
-![Grafana Dashboard](./images/grafana.png)
+
 
 ### Docker
 Docker Desktop shows all running services and their respective ports, simplifying service management.
-![Docker Dashboard](./images/docker.png)
+
