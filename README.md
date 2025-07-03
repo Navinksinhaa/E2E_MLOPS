@@ -60,8 +60,8 @@ An end-to-end MLOps pipeline for training, deploying, and monitoring a news clas
 
 ```bash
 # Clone the repository
-git clone https://github.com/kingabzpro/A-to-Z-MLOps.git
-cd A-to-Z-MLOps
+git clone https://github.com/Navinksinhaa/E2E_MLOPS.git
+cd E2E_MLOPS
 ```
 
 ### 2. Environment Configuration
