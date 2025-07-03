@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MLOps](https://img.shields.io/badge/MLOps-Enabled-green.svg)](https://mlops.org)
 
-An end-to-end MLOps pipeline for training, deploying, and monitoring a news classification model using BBC articles dataset from Kaggle. This project demonstrates best practices in MLOps including model training, deployment, monitoring, and CI/CD.
+An end-to-end MLOps pipeline for training, deploying, and monitoring a news classification model using dataset from Kaggle. This project demonstrates best practices in MLOps including model training, deployment, monitoring, and CI/CD.
 
 ## 🚀 Features
 
@@ -32,7 +32,7 @@ An end-to-end MLOps pipeline for training, deploying, and monitoring a news clas
 ├── notebooks/            # Jupyter notebooks for data exploration and prototyping
 ├── tests/                # Unit, integration, and stress tests
 ├── data/                 # Data storage (raw, processed, and database files)
-│   ├── raw/              # Raw datasets (e.g., BBC news data)
+│   ├── raw/              # Raw datasets
 │   └── db/               # Database files (if any)
 ├── models/               # Saved and exported model artifacts
 ├── mlruns/               # MLflow experiment tracking data
