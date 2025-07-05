@@ -1,0 +1,336 @@
+# Default values for mlops-stack Helm chart
+
+# Global settings
+namespace: default
+
+# API Service and Deployment
+api:
+  enabled: true
+  image:
+    repository: ghcr.io/navinksinhaa/e2e_mlops
+    tag: main
+    pullPolicy: Always
+  service:
+    type: NodePort
+    port: 7860
+    nodePort: 30760
+  replicas: 1
+  env:
+    PREFECT_API_URL: http://prefect:4200/api
+    PREFECT_SERVER_API_URL: http://prefect:4200/api
+  livenessProbe:
+    initialDelaySeconds: 40
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  volumeMounts:
+    - name: mlflow-data
+      mountPath: /mlflow
+  volumes:
+    - name: mlflow-data
+      persistentVolumeClaim:
+        claimName: mlflow-data
+
+# Grafana Service and Deployment
+grafana:
+  enabled: true
+  image:
+    repository: grafana/grafana
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 32000
+  replicas: 1
+  volumeMounts:
+    - name: grafana-data
+      mountPath: /var/lib/grafana
+    - name: dashboard-json
+      mountPath: /etc/grafana/provisioning/dashboards/dashboard.json
+      subPath: dashboard.json
+    - name: dashboard-yml
+      mountPath: /etc/grafana/provisioning/dashboards/dashboard.yml
+      subPath: dashboard.yml
+    - name: dashboard-provider
+      mountPath: /etc/grafana/provisioning/dashboards/dashboard-provider.yml
+      subPath: dashboard-provider.yml
+    - name: datasource
+      mountPath: /etc/grafana/provisioning/datasources/datasource.yml
+      subPath: datasource.yml
+  volumes:
+    - name: grafana-data
+      persistentVolumeClaim:
+        claimName: grafana-data
+    - name: dashboard-json
+      configMap:
+        name: grafana-cm2
+    - name: dashboard-yml
+      configMap:
+        name: grafana-cm3
+    - name: dashboard-provider
+      configMap:
+        name: grafana-cm4
+    - name: datasource
+      configMap:
+        name: grafana-cm5
+
+# Locust Service and Deployment
+locust:
+  enabled: true
+  image:
+    repository: locustio/locust
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: NodePort
+    port: 8089
+    nodePort: 32089
+  replicas: 1
+  env:
+    TARGET_HOST: http://api:7860
+  volumeMounts:
+    - name: locust-cm0
+      mountPath: /home/locust/locustfile.py
+      subPath: locustfile.py
+      readOnly: true
+    - name: locust-cm1
+      mountPath: /home/locust/.env
+      subPath: .env
+      readOnly: true
+  volumes:
+    - name: locust-cm0
+      configMap:
+        name: locust-cm0
+        items:
+          - key: stress_test.py
+            path: locustfile.py
+    - name: locust-cm1
+      configMap:
+        name: locust-cm1
+        items:
+          - key: .env
+            path: .env
+
+# MLflow Service and Deployment
+mlflow:
+  enabled: true
+  image:
+    repository: ghcr.io/mlflow/mlflow
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: NodePort
+    port: 5000
+    nodePort: 31500
+  replicas: 1
+  env:
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+  livenessProbe:
+    initialDelaySeconds: 40
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  volumeMounts:
+    - name: mlflow-data
+      mountPath: /mlflow
+  volumes:
+    - name: mlflow-data
+      persistentVolumeClaim:
+        claimName: mlflow-data
+
+# Prefect Service and Deployment
+prefect:
+  enabled: true
+  image:
+    repository: prefecthq/prefect
+    tag: 3-latest
+    pullPolicy: Always
+  service:
+    type: NodePort
+    port: 4200
+    nodePort: 31200
+  replicas: 1
+  env:
+    PREFECT_API_URL: http://localhost:4200/api
+    PREFECT_HOME: /opt/prefect
+    PREFECT_SERVER_API_HOST: 0.0.0.0
+    PREFECT_SERVER_API_PORT: "4200"
+    PREFECT_SERVER_API_URL: http://prefect:4200/api
+  livenessProbe:
+    initialDelaySeconds: 40
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  volumeMounts:
+    - name: prefect-data
+      mountPath: /opt/prefect
+  volumes:
+    - name: prefect-data
+      persistentVolumeClaim:
+        claimName: prefect-data
+
+# Prometheus Service and Deployment
+prometheus:
+  enabled: true
+  image:
+    repository: prom/prometheus
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: NodePort
+    port: 9090
+    nodePort: 30900
+  replicas: 1
+  volumeMounts:
+    - name: prometheus-cm0
+      mountPath: /etc/prometheus/prometheus.yml
+      subPath: prometheus.yml
+      readOnly: true
+    - name: prometheus-data
+      mountPath: /prometheus
+  volumes:
+    - name: prometheus-cm0
+      configMap:
+        name: prometheus-cm0
+        items:
+          - key: prometheus.yml
+            path: prometheus.yml
+    - name: prometheus-data
+      persistentVolumeClaim:
+        claimName: prometheus-data
+
+# ConfigMap for environment variables
+envConfigMap:
+  enabled: true
+  name: env
+  data:
+    API_KEY: abidali1234
+    API_PORT: "7860"
+    CACHE_TTL: "3600"
+    GF_SECURITY_ADMIN_PASSWORD: admin
+    GF_SECURITY_ADMIN_USER: admin
+    GF_USERS_ALLOW_SIGN_UP: "false"
+    GRAFANA_PORT: "3000"
+    KAGGLE_API_KEY: 67552be506ca5d689239b4f8012ca1b6
+    KAGGLE_USERNAME: navinksinhaa
+    LOCUST_MODE: standalone
+    LOCUST_PORT: "8089"
+    LOCUST_SPAWN_RATE: "10"
+    LOCUST_USERS: "100"
+    MLFLOW_PORT: "5000"
+    MLFLOW_TRACKING_URI: http://localhost:5000
+    MODEL_NAME: news_classifier_logistic
+    MODEL_VERSION: "1"
+    PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://prefect:prefect_password@prefect-db:5432/prefect
+    PREFECT_PORT: "4200"
+    PREFECT_SERVER_API_HOST: 0.0.0.0
+    PREFECT_SERVER_API_PORT: "4200"
+    PROMETHEUS_PORT: "9090"
+    RUN_PIPELINE: "true"
+
+# ConfigMaps for Grafana
+grafanaConfigMaps:
+  cm1:
+    enabled: true
+    name: grafana-cm1
+    data:
+      dashboard-provider.yml: |
+        apiVersion: 1
+        providers:
+          - name: 'Default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /etc/grafana/provisioning/dashboards
+      dashboard.json: |
+        {{ .Files.Get "config/grafana/dashboard.json" | indent 8 }}
+      dashboard.yml: |
+        apiVersion: 1
+        providers:
+          - name: 'News Classifier Dashboard'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            updateIntervalSeconds: 10
+            allowUiUpdates: true
+            options:
+              path: /etc/grafana/provisioning/dashboards
+              foldersFromFilesStructure: true
+      datasource.yml: |
+        apiVersion: 1
+        datasources:
+          - name: prometheus
+            type: prometheus
+            access: proxy
+            orgId: 1
+            url: http://prometheus:9090/
+            basicAuth: false
+            isDefault: true
+            editable: true
+            version: 1
+            jsonData:
+              timeInterval: 15s
+              queryTimeout: 30s
+              httpMethod: POST
+            secureJsonData: {}
+
+# ConfigMaps for Locust
+locustConfigMaps:
+  cm0:
+    enabled: true
+    name: locust-cm0
+    data:
+      stress_test.py: |
+        {{ .Files.Get "config/locust/stress_test.py" | indent 8 }}
+  cm1:
+    enabled: true
+    name: locust-cm1
+    data:
+      .env: |
+        {{ .Files.Get "config/locust/.env" | indent 8 }}
+
+# ConfigMap for Prometheus
+prometheusConfigMap:
+  enabled: true
+  name: prometheus-cm0
+  data:
+    prometheus.yml: |
+      global:
+        scrape_interval: 15s
+      scrape_configs:
+        - job_name: 'api'
+          static_configs:
+            - targets: ['api:7860']
+          metrics_path: '/metrics'
+
+# PersistentVolumeClaims
+pvc:
+  mlflow:
+    enabled: true
+    name: mlflow-data
+    accessModes:
+      - ReadWriteOnce
+    storage: 100Mi
+  grafana:
+    enabled: true
+    name: grafana-data
+    accessModes:
+      - ReadWriteOnce
+    storage: 100Mi
+  prefect:
+    enabled: true
+    name: prefect-data
+    accessModes:
+      - ReadWriteOnce
+    storage: 100Mi
+  prometheus:
+    enabled: true
+    name: prometheus-data
+    accessModes:
+      - ReadWriteOnce
+    storage: 100Mi
