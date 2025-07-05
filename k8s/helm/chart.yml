@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mlops-stack
+description: A Helm chart for deploying an MLOps stack including API, Grafana, Locust, MLflow, Prefect, and Prometheus
+type: application
+version: 0.1.0
+appVersion: "1.0"
